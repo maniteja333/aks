@@ -1,4 +1,4 @@
-name: Deploy Key Vault
+name: Deploy Key Vault (Staged Pipeline)
 
 on:
   push:
@@ -7,8 +7,26 @@ on:
       - .github/workflows/deploy-keyvault.yml
 
 jobs:
-  deploy:
+  stage1_checkout_login:
+    name: Stage 1 - Checkout & Login
     runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Echo Stage 1 Complete
+      run: echo "Stage 1 complete - Code checkout and Azure login successful."
+
+  stage2_deploy_keyvault:
+    name: Stage 2 - Deploy Key Vault
+    runs-on: ubuntu-latest
+    needs: stage1_checkout_login
 
     steps:
     - name: Checkout code
@@ -30,9 +48,14 @@ jobs:
                          tenantId=$(az account show --query tenantId -o tsv) \
                          objectId=2702eabc-b376-4c30-a179-14e6ff81f602
 
-  echo_job:
+    - name: Echo Stage 2 Complete
+      run: echo "Stage 2 complete - Key Vault deployed."
+
+  stage3_notify:
+    name: Stage 3 - Notify Completion
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: stage2_deploy_keyvault
+
     steps:
-    - name: Echo message
-      run: echo "Key Vault deployment completed. This is the next job!"
+    - name: Echo Final Message
+      run: echo "Stage 3 complete - Deployment pipeline finished successfully."
