@@ -23,9 +23,11 @@ jobs:
       uses: azure/cli@v1
       with:
         inlineScript: |
+          az account show
+          TENANT_ID=$(az account show --query tenantId -o tsv)
           az deployment group create \
-            --resource-group <your-resource-group> \
+            --resource-group sa-rg \
             --template-file keyvault.bicep \
-            --parameters keyVaultName=<your-kv-name> \
-                         tenantId=$(az account show --query tenantId -o tsv) \
-                         objectId=2702eabc-b376-4c30-a179-14e6ff81f602
+            --parameters keyVaultName="vpps-kv" \
+                         tenantId="$TENANT_ID" \
+                         objectId="2702eabc-b376-4c30-a179-14e6ff81f602"
