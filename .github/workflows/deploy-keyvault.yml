@@ -1,0 +1,31 @@
+name: Deploy Key Vault
+
+on:
+  push:
+    paths:
+      - keyvault.bicep
+      - .github/workflows/deploy-keyvault.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy Key Vault
+      uses: azure/cli@v1
+      with:
+        inlineScript: |
+          az deployment group create \
+            --resource-group <your-resource-group> \
+            --template-file keyvault.bicep \
+            --parameters keyVaultName=<your-kv-name> \
+                         tenantId=$(az account show --query tenantId -o tsv) \
+                         objectId=2702eabc-b376-4c30-a179-14e6ff81f602
