@@ -44,7 +44,7 @@ jobs:
           az deployment group create \
             --resource-group sa-rg \
             --template-file keyvault.bicep \
-            --parameters keyVaultName=vpps-kv \
+            --parameters keyVaultName=vpps-k \
                          tenantId=$(az account show --query tenantId -o tsv) \
                          objectId=2702eabc-b376-4c30-a179-14e6ff81f602
 
